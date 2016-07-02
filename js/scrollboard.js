@@ -169,7 +169,7 @@ function getSubmitList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "submitData.json",
+        url: "data/submitData.json",
         dataType: "json",
         data: {},
         async:false,
@@ -196,7 +196,7 @@ function getTeamList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "teamData.json",
+        url: "data/teamData.json",
         dataType: "json",
         async:false,
         data: {},
