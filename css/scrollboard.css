@@ -19,7 +19,7 @@
     line-height: 27px!important;
 }
 
-.team-iteam {
+.team-item {
     width: 100%;
     position: absolute;
     top: 44px;
@@ -27,25 +27,23 @@
     text-align: center;
     height: 67px;
     line-height: 67px !important;
+    margin: 0;
 
     background: #fff;
+    -webkit-transition: background 1s ease;
 }
 
-.team-iteam {
-    
-}
-
-.team-iteam table {
+.team-item table {
     text-align: center;
     height: 50px;
     line-height: 50px!important;
     margin: 0;
 }
 
-.team-iteam th,td {
+.team-item th,td {
     text-align: center;
     height: 50px;
-    font-weight: bold;
+    font-size: 20px;
     line-height: 50px!important;
 }
 
@@ -55,36 +53,47 @@
 }
 
 .problem-status span {
-    border-radius: 1.25em;
+    border-radius: 0.25em;
     display: block;
     width: 100%;
     font-size: 100%;
-    margin: 15px 0;
+    font-weight: normal;
+    margin: 8px 0;
+    padding: 7px 0;
+    
+    -moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.22) inset;
+    -webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.22) inset;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.22) inset;
 }
 
-.team-iteam.hold {
-    z-index: 2;
-    box-shadow: inset 0 0 3px #FF9800, 0px 0 8px #FFEB3B;
+.team-item.hold {
+    z-index: 1000;
+    box-shadow: inset 0 0 3px #03A9F4, 0px 0 8px #00BCD4;
 }
 
 .team-name {
-    line-height: 25px!important;
+    /*line-height: 25px!important;*/
 }
 
-.rank.gold{
-    background: #f9d923;
+.team-item.gold{
+    background: #fff9c0;
 }
 
-.rank.silver{
-    background: silver;
+.team-item.silver{
+    background: #f6f6f6;
 }
 
-.rank.bronze{
-    background: #c08e55;
+.team-item.bronze{
+    background: #eddccf;
+}
+
+#timer{
+    margin: 0;
+    height: 0!important;
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 0px;
     margin-right: 2px
 }
 

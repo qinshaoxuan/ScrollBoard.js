@@ -91,7 +91,7 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         //封榜后的提交设置isUnkonwn为true
         if (sub.subTime > freezeBoardTime) {
             p.isUnkonwn = true;
-            this.unkonwnAlphabetIdMap[p.alphabetId]=true;
+            this.unkonwnAlphabetIdMap[p.alphabetId] = true;
         }
         //增加提交次数
         p.submitCount++;
@@ -102,24 +102,24 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
             //则保存AC时间
             p.acceptedTime = sub.subTime.getTime() - startTime.getTime();
             //如果为封榜前AC，则计算罚时,且队伍通过题数加1
-            if (p.acceptedTime < freezeBoardTime-startTime) {
+            if (p.acceptedTime < freezeBoardTime - startTime) {
                 p.penalty += p.acceptedTime + (p.submitCount - 1) * 20 * 60 * 1000;
                 this.solved++;
                 this.penalty += p.penalty;
             }
         }
-        
+
         //更新submitProblemList
         this.submitProblemList[p.alphabetId] = p;
     }
 }
 
-Team.prototype.countUnkonwnProblme = function(){
-	var count = 0;
-	for(var key in this.unkonwnAlphabetIdMap){
-		count++;
-	}
-	return count;
+Team.prototype.countUnkonwnProblme = function() {
+    var count = 0;
+    for (var key in this.unkonwnAlphabetIdMap) {
+        count++;
+    }
+    return count;
 }
 
 /**
@@ -173,13 +173,13 @@ function getSubmitList() {
         url: "data/submitData.json",
         dataType: "json",
         data: {},
-        async:false,
+        async: false,
         success: function(result) {
             for (var key in result.data) {
                 var sub = result.data[key];
                 data.push(new Submit(sub.submitId, sub.userId, sub.alphabetId, sub.subTime, sub.resultId));
             }
-            
+
         },
         error: function() {
             alert("获取Submit数据失败");
@@ -199,11 +199,11 @@ function getTeamList() {
         content: "application/x-www-form-urlencoded",
         url: "data/teamData.json",
         dataType: "json",
-        async:false,
+        async: false,
         data: {},
         success: function(result) {
             for (var key in result.data) {
-                var team=result.data[key];
+                var team = result.data[key];
                 data[team.teamId] = new Team(team.teamId, team.nickname, team.realname, team.official);
             }
         },
@@ -224,7 +224,9 @@ function getTeamList() {
 function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     this.problemCount = problemCount; //题目数量
     this.medalCounts = medalCounts; //奖牌数数组,无特等奖则为3个数,有特等奖则为4个数，第一个为特等奖
-    this.problemList = []; //题目alphabetId编号列表
+    this.medalRanks = []; //每个奖牌的最后一名的RANK值
+    this.medalStr = ["gold", "silver", "bronze"];
+    this.problemList = [0]; //题目alphabetId编号列表
     this.startTime = startTime;
     this.freezeBoardTime = freezeBoardTime;
     this.teamList = []; //从服务器获取的teamList，为teamId与Team对象的映射
@@ -232,18 +234,24 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     this.teamNowSequence = []; //当前队伍排名，存队伍ID
     this.teamNextSequence = []; //下一步队伍排名，存队伍ID
     this.teamCount = 0; //队伍数量
-    this.displayTeamPos = 0;	//当前展示的队伍位置
+    this.displayTeamPos = 0; //当前展示的队伍位置
 
     //根据题目数量设置alphabetId
     var ACode = 65;
     for (var i = 0; i < problemCount; i++)
         this.problemList.push(String.fromCharCode(ACode + i));
 
+    //计算medalRanks
+    this.medalRanks[0] = medalCounts[0];
+    for (var i = 1; i < this.medalCounts.length; ++i) {
+        this.medalRanks[i] = this.medalCounts[i] + this.medalRanks[i - 1];
+    }
+
     //从服务器得到submitList和teamList
     this.submitList = getSubmitList();
     this.teamList = getTeamList();
 
-    
+
 
     //将submit存到对应的Team对象里
     for (var key in this.submitList) {
@@ -251,14 +259,14 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
         this.teamList[sub.teamId].submitList.push(sub);
     }
 
-    
+
 
     //初始化Team对象，同时将队伍ID放入序列
     for (var key in this.teamList) {
         var team = this.teamList[key];
         team.init(this.startTime, this.freezeBoardTime);
         this.teamNowSequence.push(team);
-        this.teamCount ++;
+        this.teamCount++;
     }
     this.displayTeamPos = this.teamCount - 1;
 
@@ -276,11 +284,11 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
  * @return {int} 排名上升的队伍要插入的位置，如果无变化返回-1
  */
 Board.prototype.updateTeamSequence = function() {
-    var teamSequence = this.teamNextSequence.slice(0);//复制数组
+    var teamSequence = this.teamNextSequence.slice(0); //复制数组
     teamSequence.sort(function(a, b) {
         return TeamCompare(a, b);
     });
-    
+
 
     //找到第一个改变的位置，即为排名上升的队伍要插入的位置
     var toPos = -1;
@@ -333,7 +341,8 @@ Board.prototype.showInitBoard = function() {
 
     //表头
     var headHTML =
-        "<div class=\"ranktable-head\">\
+        "<div id=\"timer\" class=\"gold silver bronze\"></div>\
+        <div class=\"ranktable-head\">\
             <table class=\"table\">\
                 <tr>\
                     <th width=\"" + rankPer + "%\">Rank</th>\
@@ -341,10 +350,10 @@ Board.prototype.showInitBoard = function() {
                     <th width=\"" + solvedPer + "%\">Solved</th>\
                     <th width=\"" + penaltyPer + "%\">Penalty</th>";
     var footHTML =
-                "</tr>\
+        "</tr>\
             </table>\
         </div>";
-    $('body').append(headHTML+footHTML);
+    $('body').append(headHTML + footHTML);
 
 
     //题目列
@@ -354,56 +363,78 @@ Board.prototype.showInitBoard = function() {
         $('.ranktable-head tr').append(bodyHTML);
     }
 
+    var maxRank = 0;
 
     //队伍
     for (var i = 0; i < this.teamCount; i++) {
         //var team = this.teamList[this.teamNowSequence[i]];
         var team = this.teamNowSequence[i];
-        var rank = i + 1;
+
+        var rank = 0;
+        var medal = -1;
+        if (team.solved != 0) {
+            rank = i + 1;
+            maxRank = rank + 1;
+            for (var j = this.medalRanks.length - 1; j >= 0; j--) {
+                console.log(j);
+                if (rank <= this.medalRanks[j])
+                    medal = j;
+            }
+        } else {
+            rank = maxRank;
+            medal = -1;
+        }
+
+
+
         var headHTML =
-                "<div id=\"team_" + team.teamId + "\" class=\"team-iteam\" team-id=\""+team.teamId+"\"> \
+            "<div id=\"team_" + team.teamId + "\" class=\"team-item\" team-id=\"" + team.teamId + "\"> \
                     <table class=\"table\"> \
                         <tr>";
-        var rankHTML =      "<th class=\"rank\" width=\"" + rankPer + "%\">" + rank + "</th>";
-        var teamHTML =      "<td class=\"team-name\" width=\"" + teamPer + "%\">" + team.teamName + "<br/>" + team.teamMember + "</td>";
-        var solvedHTML =    "<td class=\"solved\" width=\""+solvedPer+"%\">"+ team.solved +"</td>";
-        var penaltyHTML =   "<td class=\"penalty\" width=\""+ penaltyPer +"%\">"+ parseInt(team.penalty/1000.0/60.0) +"</td>";
+        var rankHTML = "<th class=\"rank\" width=\"" + rankPer + "%\">" + rank + "</th>";
+        var teamHTML = "<td class=\"team-name\" width=\"" + teamPer + "%\">" + team.teamName + /*"<br/>" + team.teamMember +*/ "</td>";
+        var solvedHTML = "<td class=\"solved\" width=\"" + solvedPer + "%\">" + team.solved + "</td>";
+        var penaltyHTML = "<td class=\"penalty\" width=\"" + penaltyPer + "%\">" + parseInt(team.penalty / 1000.0 / 60.0) + "</td>";
         var problemHTML = "";
-        for(var key in this.problemList){
-            problemHTML+="<td class=\"problem-status\" width=\""+problemStatusPer+"%\" alphabet-id=\""+this.problemList[key]+"\">";
+        for (var key in this.problemList) {
+            problemHTML += "<td class=\"problem-status\" width=\"" + problemStatusPer + "%\" alphabet-id=\"" + this.problemList[key] + "\">";
             var tProblem = team.submitProblemList[this.problemList[key]];
-            if(tProblem){
-                if(tProblem.isUnkonwn)
-                    problemHTML+="<span class=\"label label-warning\">"+tProblem.submitCount+"</span></td>";
-                else{
-                    if(tProblem.isAccepted){
-                        problemHTML+="<span class=\"label label-success\">"+tProblem.submitCount+"/"+parseInt(tProblem.acceptedTime/1000.0/60.0)+"</span></td>";
-                    }else{
-                        problemHTML+="<span class=\"label label-danger\">"+tProblem.submitCount+"</span></td>";
+            if (tProblem) {
+                if (tProblem.isUnkonwn)
+                    problemHTML += "<span class=\"label label-warning\">" + tProblem.submitCount + "</span></td>";
+                else {
+                    if (tProblem.isAccepted) {
+                        problemHTML += "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</span></td>";
+                    } else {
+                        problemHTML += "<span class=\"label label-danger\">" + tProblem.submitCount + "</span></td>";
                     }
                 }
-            }   
+            }
         }
-        var footHTML = 
-                        "</tr> \
+        var footHTML =
+            "</tr> \
                         </table> \
                     </div>";
 
-        var HTML=headHTML+rankHTML+teamHTML+solvedHTML+penaltyHTML+problemHTML+footHTML;
-
+        var HTML = headHTML + rankHTML + teamHTML + solvedHTML + penaltyHTML + problemHTML + footHTML;
         $('body').append(HTML);
+
+        if (medal != -1)
+            $("#team_" + team.teamId).addClass(this.medalStr[medal]);
+
     }
+
 
     var headerHeight = 44;
     var teamHeight = 68;
-    for(var i = 0 ; i< this.teamCount ;++i){
+    for (var i = 0; i < this.teamCount; ++i) {
         //var teamId = this.teamList[this.teamNowSequence[i]].teamId;
         var teamId = this.teamNowSequence[i].teamId;
-        $("div[team-id=\""+ teamId +"\"]").stop().animate({top:i*teamHeight+headerHeight},300);
+        $("div[team-id=\"" + teamId + "\"]").stop().animate({ top: i * teamHeight + headerHeight }, 300);
     }
 }
 
-Board.prototype.updateTeamStatus = function(team){
+Board.prototype.updateTeamStatus = function(team) {
 
     //更新ProblemStatus
     for (var key in team.submitProblemList) {
@@ -424,18 +455,28 @@ Board.prototype.updateTeamStatus = function(team){
 
 
             //让题目状态闪烁，并更新状态
-            console.log(problemHTML);
-            if(tProblem.isUnkonwn==false){
+            if (tProblem.isUnkonwn == false) {
                 //加高亮边框前去掉所有高亮边框
-                $('.team-iteam.hold').removeClass("hold");
-                var $team = $("div[team-id=\""+ team.teamId +"\"]");
+                $('.team-item.hold').removeClass("hold");
+                var $team = $("div[team-id=\"" + team.teamId + "\"]");
+                //加高亮边框
                 $team.addClass("hold");
+
+                //得到TeamDiv距顶部的高度
+                var clientHeight = document.documentElement.clientHeight || document.body.clientHeight || 0;
+                var teamTopHeight = $team.offset().top - clientHeight + 100;
+                console.log(clientHeight);
+
+                //移动视点
+                $('body,html').stop().animate({
+                        scrollTop: teamTopHeight
+                    },
+                    1000);
+
                 //传参，不懂原理
-                (function(problemHTML){
+                (function(problemHTML) {
                     var speed = 400;
-
-
-                    $statusSpan.fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed,function(){
+                    $statusSpan.fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed, function() {
                         $(this).parent().html(problemHTML);
                     });
                 })(problemHTML);
@@ -447,35 +488,64 @@ Board.prototype.updateTeamStatus = function(team){
     var thisBoard = this;
     //传参，不懂原理
     (function(thisBoard, team) {
-        $('body').animate({margin: 0},2200,function(){
+        $('#timer').animate({ margin: 0 }, 1600, function() {
+
             //更新Rank
+            var maxRank = 0;
+            for(var i in thisBoard.medalStr){
+                $(".team-item").removeClass(thisBoard.medalStr[i]);
+            }
+
             for (var i = 0; i < thisBoard.teamCount; i++) {
                 var t = thisBoard.teamNextSequence[i];
-                var str = "#team_" + t.teamId + " .rank";
-                $(str).html(i + 1);
+                var medal = -1;
+                var rankValue = 0;
+                if (t.solved != 0) {
+                    rankValue = i + 1;
+                    maxRank = rankValue + 1;
+                    for (var j = thisBoard.medalRanks.length - 1; j >= 0; j--) {
+                        if (rankValue <= thisBoard.medalRanks[j])
+                            medal = j;
+                    }
+                } else {
+                    rankValue = maxRank;
+                    medal = -1;
+                }
+                console.log(thisBoard.medalRanks);
+
+                $team = $("div[team-id=\"" + t.teamId + "\"]");
+                console.log($team);
+                if (medal != -1)
+                    $team.addClass(thisBoard.medalStr[medal]);
+
+                $("#team_" + t.teamId + " .rank").html(rankValue);
+
+
             }
+
+
 
             //更新Solved
             $("#team_" + team.teamId + " .solved").html(team.solved);
 
             //更新Penaly
             $("#team_" + team.teamId + " .penalty").html(parseInt(team.penalty / 1000.0 / 60.0));
-        });
-        
+        }, false);
+
     })(thisBoard, team);
 
-    
+
 }
 
 
-Board.prototype.moveTeam = function(toPos){
-	var headerHeight = 44;
+Board.prototype.moveTeam = function(toPos) {
+    var headerHeight = 44;
     var teamHeight = 68;
-    for(var i = 0 ; i< this.teamCount ;++i){
+    for (var i = 0; i < this.teamCount; ++i) {
         //var teamId = this.teamList[this.teamNowSequence[i]].teamId;
         var teamId = this.teamNextSequence[i].teamId;
-        if(toPos!=-1)
-            $("div[team-id=\""+ teamId +"\"]").animate({width: '100%'},2200).animate({top:i*teamHeight+headerHeight},1000);
+        if (toPos != -1)
+            $("div[team-id=\"" + teamId + "\"]").animate({ margin: 0}, 2200).animate({ top: i * teamHeight + headerHeight }, 1000);
 
     }
 }
@@ -486,20 +556,20 @@ Board.prototype.keydown = function() {
         var toPos = this.updateTeamSequence();
         this.updateTeamStatus(team);
         this.moveTeam(toPos);
-        
+
     } else {
-        $('.team-iteam.hold').removeClass("hold");
+        $('.team-item.hold').removeClass("hold");
     }
 }
 
 
 
-$(function(){
+$(function() {
     //2015-02-01 12:00:00 ~ 2015-02-01 17:00:00
-    var board = new Board(11,null,new Date(1422763200000),new Date(1422777600000));
+    var board = new Board(11, new Array(2, 2, 2), new Date(1422763200000), new Date(1422777600000));
     board.showInitBoard();
-    $('html').keydown(function(e){
-        if(e.keyCode==13){
+    $('html').keydown(function(e) {
+        if (e.keyCode == 13) {
             board.keydown();
         }
     })
