@@ -9,10 +9,20 @@
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/scrollboard.js"></script>
+
 </head>
 
 <body>
-    
+	<script type="text/javascript">
+	    //2015-02-01 12:00:00 ~ 2015-02-01 17:00:00
+	    var board = new Board(11, new Array(2, 2, 2), new Date(1422763200000), new Date(1422777600000));
+	    board.showInitBoard();
+	    $('html').keydown(function(e) {
+	        if (e.keyCode == 13) {
+	            board.keydown();
+	        }
+	    })
+    </script>
 </body>
 
 </html>
