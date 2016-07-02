@@ -226,7 +226,7 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     this.medalCounts = medalCounts; //奖牌数数组,无特等奖则为3个数,有特等奖则为4个数，第一个为特等奖
     this.medalRanks = []; //每个奖牌的最后一名的RANK值
     this.medalStr = ["gold", "silver", "bronze"];
-    this.problemList = [0]; //题目alphabetId编号列表
+    this.problemList = []; //题目alphabetId编号列表
     this.startTime = startTime;
     this.freezeBoardTime = freezeBoardTime;
     this.teamList = []; //从服务器获取的teamList，为teamId与Team对象的映射
@@ -341,7 +341,7 @@ Board.prototype.showInitBoard = function() {
 
     //表头
     var headHTML =
-        "<div id=\"timer\" class=\"gold silver bronze\"></div>\
+        "<div id=\"timer\"></div>\
         <div class=\"ranktable-head\">\
             <table class=\"table\">\
                 <tr>\
@@ -355,7 +355,7 @@ Board.prototype.showInitBoard = function() {
         </div>";
     $('body').append(headHTML + footHTML);
 
-
+    console.log(this.problemList);
     //题目列
     for (var i = 0; i < this.problemList.length; i++) {
         var alphabetId = this.problemList[i];
