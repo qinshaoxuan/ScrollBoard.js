@@ -355,7 +355,6 @@ Board.prototype.showInitBoard = function() {
         </div>";
     $('body').append(headHTML + footHTML);
 
-    console.log(this.problemList);
     //题目列
     for (var i = 0; i < this.problemList.length; i++) {
         var alphabetId = this.problemList[i];
@@ -376,7 +375,6 @@ Board.prototype.showInitBoard = function() {
             rank = i + 1;
             maxRank = rank + 1;
             for (var j = this.medalRanks.length - 1; j >= 0; j--) {
-                console.log(j);
                 if (rank <= this.medalRanks[j])
                     medal = j;
             }
@@ -465,7 +463,7 @@ Board.prototype.updateTeamStatus = function(team) {
                 //得到TeamDiv距顶部的高度
                 var clientHeight = document.documentElement.clientHeight || document.body.clientHeight || 0;
                 var teamTopHeight = $team.offset().top - clientHeight + 100;
-                console.log(clientHeight);
+
 
                 //移动视点
                 $('body,html').stop().animate({
@@ -511,10 +509,10 @@ Board.prototype.updateTeamStatus = function(team) {
                     rankValue = maxRank;
                     medal = -1;
                 }
-                console.log(thisBoard.medalRanks);
+
 
                 $team = $("div[team-id=\"" + t.teamId + "\"]");
-                console.log($team);
+
                 if (medal != -1)
                     $team.addClass(thisBoard.medalStr[medal]);
 
