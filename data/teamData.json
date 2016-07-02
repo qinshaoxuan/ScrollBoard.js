@@ -1,0 +1,33 @@
+{
+    "data":[{
+        "teamId":109,
+        "nickname":"5120141035",
+        "realname":"5",
+        "official":1
+    },{
+        "teamId":101,
+        "nickname":"Ysf_c",
+        "realname":"杨顺丰",
+        "official":1
+    },{
+        "teamId":105,
+        "nickname":"20140425",
+        "realname":"1",
+        "official":1
+    },{
+        "teamId":106,
+        "nickname":"20131797",
+        "realname":"2",
+        "official":1
+    },{
+        "teamId":107,
+        "nickname":"CSRFtest",
+        "realname":"3",
+        "official":1
+    },{
+        "teamId":108,
+        "nickname":"20130518",
+        "realname":"4",
+        "official":1
+    }]
+}
