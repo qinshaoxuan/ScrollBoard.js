@@ -1,3 +1,8 @@
+body{
+    font-family:"Helvetica Neue",Helvetica,Arial,"Microsoft YaHei", 微软雅黑, sans-serif;
+}
+
+
 .ranktable-head {
     width: 100%;
     position: fixed;
@@ -7,9 +12,6 @@
 }
 
 .ranktable-head table {
-    text-align: center;
-    height: 27px;
-    line-height: 27px!important;
     margin: 0;
 }
 
@@ -35,16 +37,16 @@
 
 .team-item table {
     text-align: center;
-    height: 50px;
-    line-height: 50px!important;
-    margin: 0;
+    height: 67px;
+    font-size: 20px;
+    margin: 0; 
 }
 
 .team-item th,td {
     text-align: center;
-    height: 50px;
-    font-size: 20px;
-    line-height: 50px!important;
+    height: 67px;
+    vertical-align: middle!important;
+
 }
 
 .void-team {
@@ -58,7 +60,6 @@
     width: 100%;
     font-size: 100%;
     font-weight: normal;
-    margin: 8px 0;
     padding: 7px 0;
     
     -moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.22) inset;
@@ -94,19 +95,4 @@
 
 ::-webkit-scrollbar {
     width: 0px;
-    margin-right: 2px
-}
-
-::-webkit-scrollbar-track-piece {
-    background-color: #F5F5F5;
-    border-left: 1px solid #D2D2D2;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #CBCBCB;
-    width: 10px
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 144, 255, 0.61)
 }
