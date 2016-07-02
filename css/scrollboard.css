@@ -42,10 +42,10 @@
     margin: 0;
 }
 
-.team-iteam th,
-td {
+.team-iteam th,td {
     text-align: center;
     height: 50px;
+    font-weight: bold;
     line-height: 50px!important;
 }
 
@@ -76,7 +76,7 @@ td {
 }
 
 .rank.silver{
-    background: #f9d923;
+    background: silver;
 }
 
 .rank.bronze{
