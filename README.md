@@ -2,7 +2,7 @@
 
 ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
-展示页面：[Demo](https://qinshaoxuan.github.io/ScrollBoard/)
+展示页面：[Demo](https://qinshaoxuan.github.io/ScrollBoard.js/)
 
 按一次回车（可自行指定）可进行一步，即更新一个队的一个未知结果
 
