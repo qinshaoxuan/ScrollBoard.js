@@ -33,6 +33,7 @@ body{
 
     background: #fff;
     -webkit-transition: background 2s ease;
+    -webkit-transition: box-shadow .2s ease;
 }
 
 .team-item table {
