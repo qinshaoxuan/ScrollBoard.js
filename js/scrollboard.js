@@ -352,9 +352,9 @@ Board.prototype.showInitBoard = function() {
     //设置表头宽度百分比
     var rankPer = 5; //Rank列宽度百分比
     var teamPer = 25; //Team列宽度百分比
-    var solvedPer = 5; //Solved列宽度百分比
-    var penaltyPer = 5; //Penalty列宽度百分比
-    var problemStatusPer = 60.0 / this.problemCount; //Problem列宽度百分比
+    var solvedPer = 4; //Solved列宽度百分比
+    var penaltyPer = 7; //Penalty列宽度百分比
+    var problemStatusPer = (100.0 - rankPer - teamPer - solvedPer - penaltyPer) / this.problemCount; //Problem列宽度百分比
 
     //表头
     var headHTML =
