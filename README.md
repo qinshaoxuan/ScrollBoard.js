@@ -8,7 +8,8 @@ ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 实现了基本的滚榜展示功能
 
 ## 使用方法
-example
+### example
+
 `
 <script type="text/javascript">
 	var board = new Board(
