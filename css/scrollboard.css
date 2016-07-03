@@ -46,7 +46,11 @@ body{
     text-align: center;
     height: 67px;
     vertical-align: middle!important;
+}
 
+th.rank{
+    font-weight: normal;
+    font-size: 30px;
 }
 
 .void-team {

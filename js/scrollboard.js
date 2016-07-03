@@ -15,7 +15,7 @@
  * 从服务器获取提交列表，可按后台json格式修改
  * @return {Array<Submit>} 初始化后的Submit对象数组
  */
-function getSubmitList() {
+/*function getSubmitList() {
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -36,13 +36,39 @@ function getSubmitList() {
         }
     });
     return data;
+}*/
+
+function getSubmitList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/data.json",
+        dataType: "json",
+        data: {},
+        async: false,
+        success: function(result) {
+            for (var key in result.data) {
+                var sub = result.data[key];
+                data.push(new Submit(sub.submitId, sub.username, sub.alphabetId, sub.subTime, sub.resultId));
+            }
+
+        },
+        error: function() {
+            alert("获取Submit数据失败");
+        }
+    });
+    return data;
 }
+
+
+
 
 /**
  * 从服务器获取队伍列表，可按后台json格式修改
  * @return {Array<Team>} 初始化后的Team对象数组
  */
-function getTeamList() {
+/*function getTeamList() {
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -62,8 +88,44 @@ function getTeamList() {
         }
     });
     return data;
+}*/
+
+function getTeamList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/data.json",
+        dataType: "json",
+        async: false,
+        data: {},
+        success: function(result) {
+            for (var key in result.data) {
+                var team = result.data[key];
+                data[team.username] = new Team(team.username, team.username, null, 1);
+            }
+        },
+        error: function() {
+            alert("获取Team数据失败");
+        }
+    });
+    return data;
 }
 
+/**
+ * yyyy-mm-dd hh:mm:ss格式转Date
+ * @param {Date} s 字符串对应的日期
+ */
+function StringToDate(s) {
+    var d = new Date();
+    d.setYear(parseInt(s.substring(0, 4), 10));
+    d.setMonth(parseInt(s.substring(5, 7) - 1, 10));
+    d.setDate(parseInt(s.substring(8, 10), 10));
+    d.setHours(parseInt(s.substring(11, 13), 10));
+    d.setMinutes(parseInt(s.substring(14, 16), 10));
+    d.setSeconds(parseInt(s.substring(17, 19), 10));
+    return d;
+}
 
 
 
@@ -225,7 +287,8 @@ function TeamCompare(a, b) {
         return a.solved > b.solved ? -1 : 1;
     if (a.penalty != b.penalty) //第二关键字，罚时少者排位高
         return a.penalty < b.penalty ? -1 : 1;
-    return a.teamId < b.teamId ? -1 : 1; //第三关键字，队伍ID小者排位高
+    //return a.teamId < b.teamId ? -1 : 1; //第三关键字，队伍ID小者排位高
+    return a.teamId.localeCompare(b.teamId);
 }
 
 
