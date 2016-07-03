@@ -1,16 +1,20 @@
 # ScrollBoard.js V 1.0.0
+
 ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
 展示页面：[Demo](https://qinshaoxuan.github.io/ScrollBoard/)
+
 按一次回车（可自行指定）可进行一步，即更新一个队的一个未知结果
 
 ### V 1.0.0
+
 实现了基本的滚榜展示功能
 
 ## 使用方法
+
 ### example
 
-`
+```javascript
 <script type="text/javascript">
 	var board = new Board(
 		8, 
@@ -25,7 +29,7 @@ ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 	    }
 	});
 </script>
-`
+```
 
 由于展示效果需要，请使用空页面添加上面JS代码
 
@@ -38,4 +42,5 @@ ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 `Board.keydown()`方法为滚榜时的一步操作，即更新一个队的一个未知结果
 
 ### 获取数据
+
 JS文件中的`getSubmitList()`和`getTeamList()`方法分别为获取提交数据和获取队伍数据，请根据后台JSON数据格式自行修改
