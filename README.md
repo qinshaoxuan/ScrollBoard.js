@@ -1,4 +1,4 @@
-# ScrollBoard.js V 1.0.0
+# ScrollBoard.js
 
 ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
@@ -6,7 +6,7 @@ ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
 按一次回车（可自行指定）可进行一步，即更新一个队的一个未知结果
 
-### V 1.0.0
+### V 1.0.0 (2016-07-02)
 
 实现了基本的滚榜展示功能
 
@@ -35,7 +35,7 @@ ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
 `new Board(problemCount, medalCounts, startTime, freezeBoardTime)`
 
-参数依次为题目数、奖牌数数组、比赛开始时间、比赛封榜时间
+参数依次为题目数、奖牌数数组（分别为金银铜）、比赛开始时间、比赛封榜时间
 
 `Board.showInitBoard()`方法为展示封榜时榜的状态
 
