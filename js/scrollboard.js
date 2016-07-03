@@ -314,6 +314,7 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     this.teamNextSequence = []; //下一步队伍排名，存队伍ID
     this.teamCount = 0; //队伍数量
     this.displayTeamPos = 0; //当前展示的队伍位置
+    this.noAnimate = true;//当前无动画进行
 
     //根据题目数量设置alphabetId
     var ACode = 65;
@@ -546,7 +547,7 @@ Board.prototype.showInitBoard = function() {
  * @param  {Team} team 要改变的Team对象
  */
 Board.prototype.updateTeamStatus = function(team) {
-
+    var thisBoard = this;
     //更新ProblemStatus
     for (var key in team.submitProblemList) {
         var tProblem = team.submitProblemList[key];
@@ -588,20 +589,22 @@ Board.prototype.updateTeamStatus = function(team) {
                     500);
 
                 //传参，不懂原理，用此可以在动画的回调函数使用参数
-                (function(problemHTML) {
+                (function(thisBoard,tProblem,problemHTML) {
                     //闪烁两次后显示未知题目的结果
                     var speed = 400;//闪烁速度
                     $statusSpan.fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed, function() {
                         //更新题目表现状态
                         $(this).parent().html(problemHTML);
+                        if(!tProblem.isAccepted){
+                            thisBoard.noAnimate=true;
+                        }
                     });
-                })(problemHTML);
+                })(thisBoard,tProblem,problemHTML);
             }
         }
     }
 
     //延时更新榜单
-    var thisBoard = this;
     //传参，不懂原理，用此可以在动画的回调函数使用参数
     (function(thisBoard, team) {
         //延时1.6s
@@ -665,32 +668,41 @@ Board.prototype.updateTeamStatus = function(team) {
  * @param  {int} toPos 当前关注队伍在序列中的终点位置，-1为不移动
  */
 Board.prototype.moveTeam = function(toPos) {
-    var headerHeight = 44;
-    var teamHeight = 68;
-    for (var i = 0; i < this.teamCount; ++i) {
-        var teamId = this.teamNextSequence[i].teamId;
-        if (toPos != -1)
-            //延时2.2s后更新位置，为了等待题目状态更新完成
-            $("div[team-id=\"" + teamId + "\"]").animate({ margin: 0}, 2200).animate({ top: i * teamHeight + headerHeight }, 1000);
-
-    }
+    var thisBoard=this;
+    //传参，不懂原理，用此可以在动画的回调函数使用参数
+    (function(thisBoard,toPos){
+        var headerHeight = 44;
+        var teamHeight = 68;
+        for (var i = 0; i < thisBoard.teamCount; ++i) {
+            var teamId = thisBoard.teamNextSequence[i].teamId;
+            if (toPos != -1)
+                //延时2.2s后更新位置，为了等待题目状态更新完成
+                $("div[team-id=\"" + teamId + "\"]").animate({ margin: 0 }, 2200).animate({ top: i * teamHeight + headerHeight }, 1000, function() {
+                    thisBoard.noAnimate = true;
+                });
+        }
+    })(thisBoard,toPos);
 }
 
 /**
  * 按下按键时调用的函数，包括榜更新一步的过程
  */
 Board.prototype.keydown = function() {
-    //更新一支队伍的状态,没有则team==null
-    var team = this.UpdateOneTeam();
-    if (team) {
-        //根据现在的状态更新序列
-        var toPos = this.updateTeamSequence();
-        //更新队伍HTML内容
-        this.updateTeamStatus(team);
-        //移动队伍
-        this.moveTeam(toPos);
-    } else {
-        //无队伍可更新时取消高亮边框
-        $('.team-item.hold').removeClass("hold");
+    //等动画结束后再进行
+    if(this.noAnimate){
+        this.noAnimate = false;
+        //更新一支队伍的状态,没有则team==null
+        var team = this.UpdateOneTeam();
+        if (team) {
+            //根据现在的状态更新序列
+            var toPos = this.updateTeamSequence();
+            //更新队伍HTML内容
+            this.updateTeamStatus(team);
+            //移动队伍
+            this.moveTeam(toPos);
+        } else {
+            //无队伍可更新时取消高亮边框
+            $('.team-item.hold').removeClass("hold");
+        }
     }
 }
