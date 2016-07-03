@@ -15,7 +15,7 @@
 <body>
 	<script type="text/javascript">
 	    //2015-02-01 12:00:00 ~ 2015-02-01 17:00:00
-	    var board = new Board(11, new Array(2, 2, 2), new Date(1422763200000), new Date(1422777600000));
+	    var board = new Board(8, new Array(4, 4, 4), StringToDate("2012-10-13 19:00:00"), StringToDate("2012-10-16 01:00:00"));
 	    board.showInitBoard();
 	    $('html').keydown(function(e) {
 	        if (e.keyCode == 13) {

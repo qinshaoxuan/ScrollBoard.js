@@ -53,11 +53,6 @@ th.rank{
     font-size: 30px;
 }
 
-.void-team {
-    height: 44px!important;
-    line-height: 44px !important;
-}
-
 .problem-status span {
     border-radius: 0.25em;
     display: block;

@@ -15,7 +15,7 @@
  * 从服务器获取提交列表，可按后台json格式修改
  * @return {Array<Submit>} 初始化后的Submit对象数组
  */
-function getSubmitList() {
+/*function getSubmitList() {
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -36,13 +36,39 @@ function getSubmitList() {
         }
     });
     return data;
+}*/
+
+function getSubmitList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/data.json",
+        dataType: "json",
+        data: {},
+        async: false,
+        success: function(result) {
+            for (var key in result.data) {
+                var sub = result.data[key];
+                data.push(new Submit(sub.submitId, sub.username, sub.alphabetId, sub.subTime, sub.resultId));
+            }
+
+        },
+        error: function() {
+            alert("获取Submit数据失败");
+        }
+    });
+    return data;
 }
+
+
+
 
 /**
  * 从服务器获取队伍列表，可按后台json格式修改
  * @return {Array<Team>} 初始化后的Team对象数组
  */
-function getTeamList() {
+/*function getTeamList() {
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -62,8 +88,44 @@ function getTeamList() {
         }
     });
     return data;
+}*/
+
+function getTeamList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/data.json",
+        dataType: "json",
+        async: false,
+        data: {},
+        success: function(result) {
+            for (var key in result.data) {
+                var team = result.data[key];
+                data[team.username] = new Team(team.username, team.username, null, 1);
+            }
+        },
+        error: function() {
+            alert("获取Team数据失败");
+        }
+    });
+    return data;
 }
 
+/**
+ * yyyy-mm-dd hh:mm:ss格式转Date
+ * @param {Date} s 字符串对应的日期
+ */
+function StringToDate(s) {
+    var d = new Date();
+    d.setYear(parseInt(s.substring(0, 4), 10));
+    d.setMonth(parseInt(s.substring(5, 7) - 1, 10));
+    d.setDate(parseInt(s.substring(8, 10), 10));
+    d.setHours(parseInt(s.substring(11, 13), 10));
+    d.setMinutes(parseInt(s.substring(14, 16), 10));
+    d.setSeconds(parseInt(s.substring(17, 19), 10));
+    return d;
+}
 
 
 
@@ -225,7 +287,8 @@ function TeamCompare(a, b) {
         return a.solved > b.solved ? -1 : 1;
     if (a.penalty != b.penalty) //第二关键字，罚时少者排位高
         return a.penalty < b.penalty ? -1 : 1;
-    return a.teamId < b.teamId ? -1 : 1; //第三关键字，队伍ID小者排位高
+    //return a.teamId < b.teamId ? -1 : 1; //第三关键字，队伍ID小者排位高
+    return a.teamId.localeCompare(b.teamId);
 }
 
 
@@ -441,14 +504,41 @@ Board.prototype.showInitBoard = function() {
 
     }
 
+
+    //构造一个空的队伍，填充底部
+    var headHTML =
+        "<div id=\"team-void\" class=\"team-item\"> \
+                    <table class=\"table\"> \
+                        <tr>";
+    var rankHTML = "<th class=\"rank\" width=\"" + rankPer + "%\"></th>";
+    var teamHTML = "<td class=\"team-name\" width=\"" + teamPer + "%\"></td>";
+    var solvedHTML = "<td class=\"solved\" width=\"" + solvedPer + "%\"></td>";
+    var penaltyHTML = "<td class=\"penalty\" width=\"" + penaltyPer + "%\"></td>";
+    var problemHTML = "";
+    for (var key in this.problemList) {
+        problemHTML += "<td class=\"problem-status\" width=\"" + problemStatusPer + "%\" alphabet-id=\"" + this.problemList[key] + "\"></td>";
+    }
+    var footHTML =
+        "</tr> \
+                        </table> \
+                    </div>";
+
+    var HTML = headHTML + rankHTML + teamHTML + solvedHTML + penaltyHTML + problemHTML + footHTML;
+    //填充HTML
+    $('body').append(HTML);
+    
+    
+
     //按排名对队伍的div进行排序
-    var headerHeight = 44;	//表头的高度
-    var teamHeight = 68;	//队伍行的高度
+    var headerHeight = 44;  //表头的高度
+    var teamHeight = 68;    //队伍行的高度
     for (var i = 0; i < this.teamCount; ++i) {
         //var teamId = this.teamList[this.teamNowSequence[i]].teamId;
         var teamId = this.teamNowSequence[i].teamId;
         $("div[team-id=\"" + teamId + "\"]").stop().animate({ top: i * teamHeight + headerHeight }, 300);
     }
+    //移到底部
+    $("#team-void").stop().animate({ top: this.teamCount * teamHeight + headerHeight }, 300);
 }
 
 /**
@@ -461,7 +551,7 @@ Board.prototype.updateTeamStatus = function(team) {
     for (var key in team.submitProblemList) {
         var tProblem = team.submitProblemList[key];
         if (tProblem) {
-        	//构造题目状态HTML
+            //构造题目状态HTML
             problemHTML = "";
             if (tProblem.isUnkonwn)
                 problemHTML = "<span class=\"label label-warning\">" + tProblem.submitCount + "</td>";
@@ -499,10 +589,10 @@ Board.prototype.updateTeamStatus = function(team) {
 
                 //传参，不懂原理，用此可以在动画的回调函数使用参数
                 (function(problemHTML) {
-                	//闪烁两次后显示未知题目的结果
+                    //闪烁两次后显示未知题目的结果
                     var speed = 400;//闪烁速度
                     $statusSpan.fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed, function() {
-                    	//更新题目表现状态
+                        //更新题目表现状态
                         $(this).parent().html(problemHTML);
                     });
                 })(problemHTML);
@@ -514,7 +604,7 @@ Board.prototype.updateTeamStatus = function(team) {
     var thisBoard = this;
     //传参，不懂原理，用此可以在动画的回调函数使用参数
     (function(thisBoard, team) {
-    	//延时1.6s
+        //延时1.6s
         $('#timer').animate({ margin: 0 }, 1600, function() {
 
             /*
@@ -580,7 +670,7 @@ Board.prototype.moveTeam = function(toPos) {
     for (var i = 0; i < this.teamCount; ++i) {
         var teamId = this.teamNextSequence[i].teamId;
         if (toPos != -1)
-        	//延时2.2s后更新位置，为了等待题目状态更新完成
+            //延时2.2s后更新位置，为了等待题目状态更新完成
             $("div[team-id=\"" + teamId + "\"]").animate({ margin: 0}, 2200).animate({ top: i * teamHeight + headerHeight }, 1000);
 
     }
@@ -590,17 +680,17 @@ Board.prototype.moveTeam = function(toPos) {
  * 按下按键时调用的函数，包括榜更新一步的过程
  */
 Board.prototype.keydown = function() {
-	//更新一支队伍的状态,没有则team==null
+    //更新一支队伍的状态,没有则team==null
     var team = this.UpdateOneTeam();
     if (team) {
-    	//根据现在的状态更新序列
+        //根据现在的状态更新序列
         var toPos = this.updateTeamSequence();
         //更新队伍HTML内容
         this.updateTeamStatus(team);
         //移动队伍
         this.moveTeam(toPos);
     } else {
-    	//无队伍可更新时取消高亮边框
+        //无队伍可更新时取消高亮边框
         $('.team-item.hold').removeClass("hold");
     }
 }
