@@ -43,14 +43,20 @@ function getSubmitList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/data.json",
+        url: "data/12thSubmitData.json",
         dataType: "json",
         data: {},
         async: false,
         success: function(result) {
-            for (var key in result.data) {
-                var sub = result.data[key];
-                data.push(new Submit(sub.submitId, sub.username, sub.alphabetId, sub.subTime, sub.resultId));
+            for (var i in result.data) {
+                var page = result.data[i];
+                for(var j in page.Status){
+                    var sub = page.Status[j];
+                    var ACode = 65;
+                    var startProblemId = 94;
+                    var alphabetId =String.fromCharCode(sub.pid-startProblemId+ACode);
+                    data.push(new Submit(sub.rid, sub.uname, alphabetId, StringToDate(sub.date), sub.status));
+                }
             }
 
         },
@@ -95,14 +101,14 @@ function getTeamList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/data.json",
+        url: "data/12thTeamData.json",
         dataType: "json",
         async: false,
         data: {},
         success: function(result) {
-            for (var key in result.data) {
-                var team = result.data[key];
-                data[team.username] = new Team(team.username, team.username, null, 1);
+            for (var key in result.users) {
+                var team = result.users[key];
+                data[team.username] = new Team(team.username, team.nickname, null, 1);
             }
         },
         error: function() {
