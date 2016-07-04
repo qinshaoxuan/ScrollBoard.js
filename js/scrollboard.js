@@ -2,10 +2,10 @@
  * scrollboard.js
  * ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
  *
- * version 1.0.0
- * author: qinshaoxuan
- * github: https://github.com/qinshaoxuan/ScrollBoard
- * demo: https://qinshaoxuan.github.io/ScrollBoard/
+ * Version 1.0.0
+ * Author: qinshaoxuan qsxuan.com
+ * Github: https://github.com/qinshaoxuan/ScrollBoard
+ * Demo: https://qinshaoxuan.github.io/ScrollBoard/
  * 
  */
 
@@ -43,14 +43,20 @@ function getSubmitList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/data.json",
+        url: "data/12thSubmitData.json",
         dataType: "json",
         data: {},
         async: false,
         success: function(result) {
-            for (var key in result.data) {
-                var sub = result.data[key];
-                data.push(new Submit(sub.submitId, sub.username, sub.alphabetId, sub.subTime, sub.resultId));
+            for (var i in result.data) {
+                var page = result.data[i];
+                for(var j in page.Status){
+                    var sub = page.Status[j];
+                    var ACode = 65;
+                    var startProblemId = 94;
+                    var alphabetId =String.fromCharCode(sub.pid-startProblemId+ACode);
+                    data.push(new Submit(sub.rid, sub.uname, alphabetId, StringToDate(sub.date), sub.status));
+                }
             }
 
         },
@@ -95,14 +101,14 @@ function getTeamList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/data.json",
+        url: "data/12thTeamData.json",
         dataType: "json",
         async: false,
         data: {},
         success: function(result) {
-            for (var key in result.data) {
-                var team = result.data[key];
-                data[team.username] = new Team(team.username, team.username, null, 1);
+            for (var key in result.users) {
+                var team = result.users[key];
+                data[team.username] = new Team(team.username, team.nickname, null, 1);
             }
         },
         error: function() {
@@ -684,11 +690,7 @@ Board.prototype.moveTeam = function(toPos) {
  * 按下按键时调用的函数，包括榜更新一步的过程
  */
 Board.prototype.keydown = function() {
-    /*
-    等动画结束后再进行下一步
-    未解决BUG：当一个队伍更新一道题的状态为AC但是排名不更新时
-    在更新完状态后noAnimate值不会变为true
-     */
+    //等动画结束后再进行下一步
     if (this.noAnimate) {
         this.noAnimate = false;
         //更新一支队伍的状态,没有则team==null
