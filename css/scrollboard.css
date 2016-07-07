@@ -34,11 +34,11 @@ body{
     margin: 0;
 
     background: #fff;
-    -webkit-transition: background 2s ease ,box-shadow .2s ease;
-    -moz-transform: background 2s ease ,box-shadow .2s ease;
-    -ms-transform: background 2s ease ,box-shadow .2s ease;
-    -o-transform: background 2s ease ,box-shadow .2s ease;
-    transform: background 2s ease ,box-shadow .2s ease;
+    -webkit-transition: background 2s ease ,box-shadow .5s ease;
+    -moz-transform: background 2s ease ,box-shadow .5s ease;
+    -ms-transform: background 2s ease ,box-shadow .5s ease;
+    -o-transform: background 2s ease ,box-shadow .5s ease;
+    transform: background 2s ease ,box-shadow .5s ease;
 }
 
 .team-item table {
