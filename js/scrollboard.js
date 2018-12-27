@@ -71,6 +71,7 @@ function getSubmitList() {
 				if (sub.verdict=="OK") st=0;
 				if (sub.verdict=="COMPILATION_ERROR") st=7;
 				if (sub.verdict=="TESTING") st=-1;
+				if (sub.verdict=="SKIPPED") continue;
 				data.push(new Submit(sub.id, ss, sub.problem.index, sub.creationTimeSeconds*1000+999, st));
             }
 
@@ -128,8 +129,8 @@ function getTeamList() {
 				{
 					ss=ss.substr(6,255);
 				}
-				var st
 				if (team.participantType=="PRACTICE") continue;
+				if (team.participantType=="VIRTUAL") continue;
 				if (team.participantType=="CONTESTANT") 
                 	data[ss] = new Team(ss, ss , null, true);
 				else data[ss] = new Team(ss, ss , null, false);
@@ -200,6 +201,7 @@ function TeamProblem() {
     this.penalty = 0; //罚时毫秒数
     this.acceptedTime = new Date(); //AC时间
     this.submitCount = 0; //AC前提交次数，如果AC了，值加1
+	this.realCount = 0;
     this.isUnkonwn = false; //是否为封榜后提交，如果封榜前已AC，也为false
 }
 
@@ -231,7 +233,7 @@ function Team(teamId, teamName, teamMember, official) {
  * @param  {Date}   freezeBoardTime 封榜时间
  */
 Team.prototype.init = function(startTime, freezeBoardTime) {
-    //按提交顺序排序
+	//按提交顺序排序
     this.submitList.sort(function(a, b) {
         return a.submitId - b.submitId;
     });
@@ -243,8 +245,11 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         //设置alphabetId
         p.alphabetId = sub.alphabetId;
         //已经AC的题目不再计算
-        if (p.isAccepted) continue;
-		if (sub.resultId==7) continue;
+        if (p.isAccepted && p.acceptedTime < freezeBoardTime - startTime) continue;
+		if (sub.resultId==-1){
+            p.isUnkonwn = true;
+            this.unkonwnAlphabetIdMap[p.alphabetId] = true;
+		}
         //封榜后的提交设置isUnkonwn为true
         if (sub.subTime > freezeBoardTime) {
             p.isUnkonwn = true;
@@ -252,6 +257,7 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         }
         //增加提交次数
         p.submitCount++;
+		if (!p.isAccepted && sub.resultId!=7) p.realCount++;
         //更新AC状态
         p.isAccepted = (sub.resultId == 0);
         //如果当前提交AC
@@ -261,6 +267,7 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
 			p.acceptedTime = p.acceptedTime*60000;
             //如果为封榜前AC，则计算罚时,且队伍通过题数加1
             if (p.acceptedTime < freezeBoardTime - startTime) {
+				p.submitCount = p.realCount;
                 p.penalty += p.acceptedTime + (p.submitCount - 1) * 20 * 60 * 1000;
                 this.solved++;
                 this.penalty += p.penalty;
@@ -289,15 +296,17 @@ Team.prototype.countUnkonwnProblme = function() {
  * @return {boolean} true:当前队伍排名上升,false:排名无变化
  */
 Team.prototype.updateOneProblem = function() {
-    for (var key in this.submitProblemList) {
-        var subProblem = this.submitProblemList[key];
-        //如果题目结果未知
+    for (var key = 0 ; key < board.problemCount ; key++) {
+		var subProblem = this.submitProblemList[String.fromCharCode(key+65)];
+		if (!subProblem) continue;
+		//如果题目结果未知
         if (subProblem.isUnkonwn) {
             //更新题目状态
             subProblem.isUnkonwn = false;
             delete this.unkonwnAlphabetIdMap[subProblem.alphabetId];
             //如果AC，则更新题目状态
             if (subProblem.isAccepted) {
+				subProblem.submitCount = subProblem.realCount;
                 subProblem.penalty += subProblem.acceptedTime + (subProblem.submitCount - 1) * 20 * 60 * 1000;
                 this.solved++;
                 this.penalty += subProblem.penalty;
