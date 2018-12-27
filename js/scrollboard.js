@@ -52,7 +52,7 @@ function getSubmitList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/status.json",
+        url: "https://codeforces.com/api/contest.status?contestId=1095",
         dataType: "json",
         data: {},
         async: false,
@@ -74,7 +74,6 @@ function getSubmitList() {
 				if (sub.verdict=="SKIPPED") continue;
 				data.push(new Submit(sub.id, ss, sub.problem.index, sub.creationTimeSeconds*1000+999, st));
             }
-
         },
         error: function() {
             alert("获取Submit数据失败");
@@ -117,7 +116,7 @@ function getTeamList() {
     $.ajax({
         type: "GET",
         content: "application/x-www-form-urlencoded",
-        url: "data/ranklist.json",
+        url: "https://codeforces.com/api/contest.standings?contestId=1095&showUnofficial=false",
         dataType: "json",
         async: false,
         data: {},
