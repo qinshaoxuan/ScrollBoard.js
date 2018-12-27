@@ -1,5 +1,18 @@
 # ScrollBoard.js
 
+### V 1.1.0 (2018-12-27)
+
+修复了滚榜中罚时计算的bug
+
+### To be updated
+
+- 对于`waiting`类的展示，以便用于赛时进行实时榜单演示
+- 滚榜顺序存在bug等待修复
+
+---
+
+以下为原作者信息
+
 ACM竞赛滚榜展示插件，基于JQuery、Bootstrap
 
 展示页面：[Demo](https://qinshaoxuan.github.io/ScrollBoard.js/)
