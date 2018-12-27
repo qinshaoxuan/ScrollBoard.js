@@ -15,29 +15,8 @@
  * 从服务器获取提交列表，可按后台json格式修改
  * @return {Array<Submit>} 初始化后的Submit对象数组
  */
-/*function getSubmitList() {
-    var data = new Array();
-    $.ajax({
-        type: "GET",
-        content: "application/x-www-form-urlencoded",
-        url: "data/submitData.json",
-        dataType: "json",
-        data: {},
-        async: false,
-        success: function(result) {
-            for (var key in result.data) {
-                var sub = result.data[key];
-                data.push(new Submit(sub.submitId, sub.userId, sub.alphabetId, sub.subTime, sub.resultId));
-            }
 
-        },
-        error: function() {
-            alert("获取Submit数据失败");
-        }
-    });
-    return data;
-}*/
-
+/*
 function getSubmitList() {
     var data = new Array();
     $.ajax({
@@ -66,36 +45,50 @@ function getSubmitList() {
     });
     return data;
 }
+*/
 
+function getSubmitList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/status.json",
+        dataType: "json",
+        data: {},
+        async: false,
+        success: function(result) {
+            for (var i in result.result) {
+				var sub = result.result[i];
+				if (sub.author.participantType=="PRACTICE") continue;
+				if (sub.author.participantType=="MANAGER") continue;
+				if (sub.author.participantType=="VIRTUAL") continue;
+				var ss=sub.author.members[0].handle;
+				if (ss.indexOf("g3198=")!=-1) 
+				{
+					ss=ss.substr(6,255);
+				}
+				var st=4;
+				if (sub.verdict=="OK") st=0;
+				if (sub.verdict=="COMPILATION_ERROR") st=7;
+				if (sub.verdict=="TESTING") st=-1;
+				data.push(new Submit(sub.id, ss, sub.problem.index, sub.creationTimeSeconds*1000+999, st));
+            }
 
+        },
+        error: function() {
+            alert("获取Submit数据失败");
+        }
+    });
+    return data;
+}
 
 
 /**
  * 从服务器获取队伍列表，可按后台json格式修改
  * @return {Array<Team>} 初始化后的Team对象数组
  */
-/*function getTeamList() {
-    var data = new Array();
-    $.ajax({
-        type: "GET",
-        content: "application/x-www-form-urlencoded",
-        url: "data/teamData.json",
-        dataType: "json",
-        async: false,
-        data: {},
-        success: function(result) {
-            for (var key in result.data) {
-                var team = result.data[key];
-                data[team.teamId] = new Team(team.teamId, team.nickname, team.realname, team.official);
-            }
-        },
-        error: function() {
-            alert("获取Team数据失败");
-        }
-    });
-    return data;
-}*/
 
+/*
 function getTeamList() {
     var data = new Array();
     $.ajax({
@@ -109,6 +102,38 @@ function getTeamList() {
             for (var key in result.users) {
                 var team = result.users[key];
                 data[team.username] = new Team(team.username, team.nickname, null, 1);
+            }
+        },
+        error: function() {
+            alert("获取Team数据失败");
+        }
+    });
+    return data;
+}
+*/
+function getTeamList() {
+    var data = new Array();
+    $.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/ranklist.json",
+        dataType: "json",
+        async: false,
+        data: {},
+        success: function(result) {
+            for (var key in result.result.rows) {
+                var team = result.result.rows[key].party;
+				var ss=team.members[0].handle;
+				if (ss.indexOf("g3198=")!=-1) 
+				{
+					ss=ss.substr(6,255);
+				}
+				var st
+				if (team.participantType=="PRACTICE") continue;
+				if (team.participantType=="CONTESTANT") 
+                	data[ss] = new Team(ss, ss , null, true);
+				else data[ss] = new Team(ss, ss , null, false);
+				
             }
         },
         error: function() {
@@ -189,7 +214,7 @@ function Team(teamId, teamName, teamMember, official) {
     this.teamId = teamId; //队伍ID
     this.teamName = teamName; //队伍名
     this.teamMember = teamMember; //队员
-    this.official = true; //计入排名
+    this.official = official; //计入排名
     this.solved = 0; //通过数
     this.penalty = 0; //罚时,单位为毫秒
     this.gender = false; //女队,默认否
@@ -219,6 +244,7 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         p.alphabetId = sub.alphabetId;
         //已经AC的题目不再计算
         if (p.isAccepted) continue;
+		if (sub.resultId==7) continue;
         //封榜后的提交设置isUnkonwn为true
         if (sub.subTime > freezeBoardTime) {
             p.isUnkonwn = true;
@@ -231,7 +257,8 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         //如果当前提交AC
         if (p.isAccepted) {
             //则保存AC时间
-            p.acceptedTime = sub.subTime.getTime() - startTime.getTime();
+            p.acceptedTime = Math.floor((sub.subTime.getTime() - startTime.getTime())/60000);
+			p.acceptedTime = p.acceptedTime*60000;
             //如果为封榜前AC，则计算罚时,且队伍通过题数加1
             if (p.acceptedTime < freezeBoardTime - startTime) {
                 p.penalty += p.acceptedTime + (p.submitCount - 1) * 20 * 60 * 1000;
