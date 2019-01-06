@@ -141,6 +141,29 @@ function getTeamList() {
             alert("获取Team数据失败");
         }
     });
+	$.ajax({
+        type: "GET",
+        content: "application/x-www-form-urlencoded",
+        url: "data/acmclub2019.json",
+        dataType: "json",
+        async: false,
+        data: {},
+        success: function(result) {
+            for (var key in result) {
+                var team = result[key];
+				var ss=team.id;
+				if (ss.indexOf("g3198=")!=-1) 
+				{
+					ss=ss.substr(6,255);
+				}
+				if (!data[ss]) continue;
+				data[ss].teamName=team.name;
+            }
+        },
+        error: function() {
+            alert("获取Team数据失败");
+        }
+    });
     return data;
 }
 
@@ -246,6 +269,7 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
         p.alphabetId = sub.alphabetId;
         //已经AC的题目不再计算
         if (p.isAccepted && p.acceptedTime < freezeBoardTime - startTime) continue;
+		if (sub.resultId == 7) continue;
 		if (sub.resultId==-1){
             p.isUnkonwn = true;
             this.unkonwnAlphabetIdMap[p.alphabetId] = true;
