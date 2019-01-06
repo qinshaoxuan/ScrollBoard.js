@@ -550,7 +550,7 @@ function getSubmitList() {
 	var contestId=221422;
 	var key="481827c5d45fc0d1cbf3d694250cff58367d2f08";
 	var secret="feabebab70aad262053478cb971484a389347979";
-	var from="http://codeforces.com/api/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"#"+secret);
+	var from="https://codeforces.com/api/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"#"+secret);
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -622,7 +622,7 @@ function getTeamList() {
 	var contestId=221422;
 	var key="481827c5d45fc0d1cbf3d694250cff58367d2f08";
 	var secret="feabebab70aad262053478cb971484a389347979";
-	var from="http://codeforces.com/api/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"#"+secret);
+	var from="https://codeforces.com/api/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"#"+secret);
     var data = new Array();
     $.ajax({
         type: "GET",
