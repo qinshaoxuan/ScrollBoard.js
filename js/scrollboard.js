@@ -737,6 +737,7 @@ function TeamProblem() {
     this.submitCount = 0; //AC前提交次数，如果AC了，值加1
 	this.realCount = 0;
     this.isUnkonwn = false; //是否为封榜后提交，如果封榜前已AC，也为false
+	this.ACsubmitID = 0;
 }
 
 /**
@@ -759,6 +760,7 @@ function Team(teamId, teamName, teamMember, official) {
     this.submitList = []; //提交列表
     this.lastRank = 0; //最终排名
     this.nowRank = 0; //当前排名
+	this.lastAC = 0;
 }
 
 /**
@@ -766,8 +768,10 @@ function Team(teamId, teamName, teamMember, official) {
  * @param  {Date}   startTime       比赛开始时间
  * @param  {Date}   freezeBoardTime 封榜时间
  */
-Team.prototype.init = function(startTime, freezeBoardTime) {
+Team.prototype.init = function(board) {
 	//按提交顺序排序
+	var startTime = board.startTime;
+	var freezeBoardTime = board.freezeBoardTime;
     this.submitList.sort(function(a, b) {
         return a.submitId - b.submitId;
     });
@@ -800,6 +804,13 @@ Team.prototype.init = function(startTime, freezeBoardTime) {
             //则保存AC时间
             p.acceptedTime = Math.floor((sub.subTime.getTime() - startTime.getTime())/60000);
 			p.acceptedTime = p.acceptedTime*60000;
+			p.ACsubmitID=sub.submitId;
+			if (parseInt(sub.submitId) > parseInt(this.lastAC))
+				this.lastAC=sub.submitId;
+			if (parseInt(board.FBList[sub.alphabetId.charCodeAt(0)-65])==0||parseInt(board.FBList[sub.alphabetId.charCodeAt(0)-65])>parseInt(p.ACsubmitID))
+			{
+				board.FBList[sub.alphabetId.charCodeAt(0)-65]=p.ACsubmitID;
+			}
             //如果为封榜前AC，则计算罚时,且队伍通过题数加1
             if (p.acceptedTime < freezeBoardTime - startTime) {
 				p.submitCount = p.realCount;
@@ -864,8 +875,7 @@ function TeamCompare(a, b) {
         return a.solved > b.solved ? -1 : 1;
     if (a.penalty != b.penalty) //第二关键字，罚时少者排位高
         return a.penalty < b.penalty ? -1 : 1;
-    //return a.teamId < b.teamId ? -1 : 1; //第三关键字，队伍ID小者排位高
-    return a.teamId.localeCompare(b.teamId);
+    return a.lastAC < b.lastAC ? -1 : 1; //第三关键字，last AC小者排位高
 }
 
 
@@ -892,11 +902,14 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     this.teamCount = 0; //队伍数量
     this.displayTeamPos = 0; //当前展示的队伍位置
     this.noAnimate = true; //当前无动画进行
-
+	this.FBList = [];
     //根据题目数量设置alphabetId
     var ACode = 65;
     for (var i = 0; i < problemCount; i++)
+	{
         this.problemList.push(String.fromCharCode(ACode + i));
+		this.FBList.push(0);
+	}
 
     //计算medalRanks
     this.medalRanks[0] = medalCounts[0];
@@ -921,12 +934,11 @@ function Board(problemCount, medalCounts, startTime, freezeBoardTime) {
     //初始化Team对象，同时将队伍ID放入序列
     for (var key in this.teamList) {
         var team = this.teamList[key];
-        team.init(this.startTime, this.freezeBoardTime);
+        team.init(this);
         this.teamNowSequence.push(team);
         this.teamCount++;
     }
     this.displayTeamPos = this.teamCount - 1;
-
     //队伍排序
     this.teamNowSequence.sort(function(a, b) {
         return TeamCompare(a, b);
@@ -1067,7 +1079,11 @@ Board.prototype.showInitBoard = function() {
                     problemHTML += "<span class=\"label label-warning\">" + tProblem.submitCount + "</span></td>";
                 else {
                     if (tProblem.isAccepted) {
-                        problemHTML += "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</span></td>";
+						if (tProblem.ACsubmitID==board.FBList[tProblem.alphabetId.charCodeAt(0)-65])
+							problemHTML += "<span class=\"label label-primary\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</td>";
+						else
+							problemHTML += "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</td>";
+                        //problemHTML += "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</span></td>";
                     } else {
                         problemHTML += "<span class=\"label label-danger\">" + tProblem.submitCount + "</span></td>";
                     }
@@ -1141,7 +1157,10 @@ Board.prototype.updateTeamStatus = function(team) {
                 problemHTML = "<span class=\"label label-warning\">" + tProblem.submitCount + "</td>";
             else {
                 if (tProblem.isAccepted) {
-                    problemHTML = "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</td>";
+					if (tProblem.ACsubmitID==board.FBList[tProblem.alphabetId.charCodeAt(0)-65])
+						problemHTML = "<span class=\"label label-primary\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</td>";
+					else
+                    	problemHTML = "<span class=\"label label-success\">" + tProblem.submitCount + "/" + parseInt(tProblem.acceptedTime / 1000.0 / 60.0) + "</td>";
                 } else {
                     problemHTML = "<span class=\"label label-danger\">" + tProblem.submitCount + "</td>";
                 }
