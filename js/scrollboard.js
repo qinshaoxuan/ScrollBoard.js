@@ -567,7 +567,7 @@ function getSubmitList() {
 				if (sub.author.participantType=="MANAGER") continue;
 				if (sub.author.participantType=="VIRTUAL") continue;
 				var ss=sub.author.members[0].handle;
-				if (ss.indexOf("g3198=")!=-1) 
+				if (ss.indexOf("=")!=-1) 
 				{
 					ss=ss.substr(6,255);
 				}
@@ -636,7 +636,7 @@ function getTeamList() {
             for (var key in result.result.rows) {
                 var team = result.result.rows[key].party;
 				var ss=team.members[0].handle;
-				if (ss.indexOf("g3198=")!=-1) 
+				if (ss.indexOf("=")!=-1) 
 				{
 					ss=ss.substr(6,255);
 				}
@@ -663,7 +663,7 @@ function getTeamList() {
             for (var key in result) {
                 var team = result[key];
 				var ss=team.id;
-				if (ss.indexOf("g3198=")!=-1) 
+				if (ss.indexOf("=")!=-1) 
 				{
 					ss=ss.substr(6,255);
 				}
