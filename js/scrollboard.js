@@ -622,7 +622,7 @@ function getTeamList() {
 	var contestId=221422;
 	var key="481827c5d45fc0d1cbf3d694250cff58367d2f08";
 	var secret="feabebab70aad262053478cb971484a389347979";
-	var from="https://codeforces.com/api/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=false&time="+nowtime+"#"+secret);
+	var from="https://codeforces.com/api/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=true&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=true&time="+nowtime+"#"+secret);
     var data = new Array();
     $.ajax({
         type: "GET",
@@ -1020,7 +1020,7 @@ Board.prototype.showInitBoard = function() {
         $('.ranktable-head tr').append(bodyHTML);
     }
 
-    var maxRank = 0;
+    var maxRank = 1;
 
     //队伍
     for (var i = 0; i < this.teamCount; i++) {
@@ -1028,11 +1028,14 @@ Board.prototype.showInitBoard = function() {
         var team = this.teamNowSequence[i];
 
         //计算每支队伍的排名和奖牌情况
-        var rank = 0;
+        var rank = maxRank-1;
         var medal = -1;
         if (team.solved != 0) {
-            rank = i + 1;
-            maxRank = rank + 1;
+			if (team.official==true)
+			{
+            	rank = maxRank;
+            	maxRank = rank + 1;
+			}
             for (var j = this.medalRanks.length - 1; j >= 0; j--) {
                 if (rank <= this.medalRanks[j])
                     medal = j;
@@ -1048,7 +1051,10 @@ Board.prototype.showInitBoard = function() {
             "<div id=\"team_" + team.teamId + "\" class=\"team-item\" team-id=\"" + team.teamId + "\"> \
                     <table class=\"table\"> \
                         <tr>";
-        var rankHTML = "<th class=\"rank\" width=\"" + rankPer + "%\">" + rank + "</th>";
+		var rankHTML;
+		if (team.official==true)
+        	 rankHTML = "<th class=\"rank\" width=\"" + rankPer + "%\">" + rank + "</th>";
+		else rankHTML = "<th class=\"rank\" width=\"" + rankPer + "%\">" + "*" + "</th>";
         var teamHTML = "<td class=\"team-name\" width=\"" + teamPer + "%\"><span>" + team.teamName + /*"<br/>" + team.teamMember +*/ "</span></td>";
         var solvedHTML = "<td class=\"solved\" width=\"" + solvedPer + "%\">" + team.solved + "</td>";
         var penaltyHTML = "<td class=\"penalty\" width=\"" + penaltyPer + "%\">" + parseInt(team.penalty / 1000.0 / 60.0) + "</td>";
@@ -1187,7 +1193,7 @@ Board.prototype.updateTeamStatus = function(team) {
             /*
             更新Rank
              */
-            var maxRank = 0;
+            var maxRank = 1;
 
             //移除div中的奖牌样式
             for (var i in thisBoard.medalStr) {
@@ -1198,10 +1204,13 @@ Board.prototype.updateTeamStatus = function(team) {
             for (var i = 0; i < thisBoard.teamCount; i++) {
                 var t = thisBoard.teamNextSequence[i];
                 var medal = -1;
-                var rankValue = 0;
+                var rankValue = maxRank-1;
                 if (t.solved != 0) {
-                    rankValue = i + 1;
-                    maxRank = rankValue + 1;
+					if (t.official==true)
+					{
+                    	rankValue = maxRank;
+                    	maxRank = rankValue + 1;
+					}
                     for (var j = thisBoard.medalRanks.length - 1; j >= 0; j--) {
                         if (rankValue <= thisBoard.medalRanks[j])
                             medal = j;
@@ -1210,13 +1219,16 @@ Board.prototype.updateTeamStatus = function(team) {
                     rankValue = maxRank;
                     medal = -1;
                 }
+				
 
                 $team = $("div[team-id=\"" + t.teamId + "\"]");
 
                 if (medal != -1)
                     $team.addClass(thisBoard.medalStr[medal]);
-
-                $("#team_" + t.teamId + " .rank").html(rankValue);
+				if (t.official==true)
+                	$("#team_" + t.teamId + " .rank").html(rankValue);
+				else 
+					$("#team_" + t.teamId + " .rank").html("*");
 
             }
 
