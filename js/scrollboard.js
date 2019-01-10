@@ -572,6 +572,7 @@ function getSubmitList() {
 					ss=ss.substr(6,255);
 				}
 				var st=4;
+				while (ss!=ss.replace('.','_')) ss=ss.replace('.','_');
 				if (sub.verdict=="OK") st=0;
 				if (sub.verdict=="COMPILATION_ERROR") st=7;
 				if (sub.verdict=="TESTING") st=-1;
@@ -640,6 +641,7 @@ function getTeamList() {
 				{
 					ss=ss.substr(6,255);
 				}
+				while (ss!=ss.replace('.','_')) ss=ss.replace('.','_');
 				if (team.participantType=="PRACTICE") continue;
 				if (team.participantType=="VIRTUAL") continue;
 				if (team.participantType=="CONTESTANT") 
@@ -667,6 +669,7 @@ function getTeamList() {
 				{
 					ss=ss.substr(6,255);
 				}
+				while (ss!=ss.replace('.','_')) ss=ss.replace('.','_');
 				if (!data[ss]) continue;
 				data[ss].teamName=team.name;
             }
