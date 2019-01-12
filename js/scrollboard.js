@@ -547,7 +547,7 @@ function getSubmitList() {
 function getSubmitList() {
 	var now=new Date();
 	var nowtime=Math.floor(now/1000);
-	var contestId=221422;
+	var contestId=211;
 	var key="481827c5d45fc0d1cbf3d694250cff58367d2f08";
 	var secret="feabebab70aad262053478cb971484a389347979";
 	var from="https://codeforces.com/api/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.status?apiKey="+key+"&contestId="+contestId+"&time="+nowtime+"#"+secret);
@@ -561,9 +561,11 @@ function getSubmitList() {
         data: {},
         async: false,
         success: function(result) {
-            for (var i in result.result) {
+            //for (var i in result.result) {
+			for (var i = result.result.length - 1 ; i >= 0; i--) {
 				var sub = result.result[i];
-				if (sub.author.participantType=="PRACTICE") continue;
+				//if (sub.author.participantType=="PRACTICE") continue;
+				if (sub.author.participantType=="PRACTICE") break;
 				if (sub.author.participantType=="MANAGER") continue;
 				if (sub.author.participantType=="VIRTUAL") continue;
 				var ss=sub.author.members[0].handle;
@@ -620,7 +622,7 @@ function getTeamList() {
 function getTeamList() {
 	var now=new Date();
 	var nowtime=Math.floor(now/1000);
-	var contestId=221422;
+	var contestId=211;
 	var key="481827c5d45fc0d1cbf3d694250cff58367d2f08";
 	var secret="feabebab70aad262053478cb971484a389347979";
 	var from="https://codeforces.com/api/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=true&time="+nowtime+"&apiSig=123456"+hex_sha512("123456/contest.standings?apiKey="+key+"&contestId="+contestId+"&showUnofficial=true&time="+nowtime+"#"+secret);
@@ -878,7 +880,9 @@ function TeamCompare(a, b) {
         return a.solved > b.solved ? -1 : 1;
     if (a.penalty != b.penalty) //第二关键字，罚时少者排位高
         return a.penalty < b.penalty ? -1 : 1;
-    return parseInt(a.lastAC) < parseInt(b.lastAC) ? -1 : 1; //第三关键字，last AC小者排位高
+	if (parseInt(a.lastAC) != parseInt(b.lastAC))
+    	return parseInt(a.lastAC) < parseInt(b.lastAC) ? -1 : 1; //第三关键字，last AC小者排位高
+	return a.teamId.localeCompare(b.teamId);//对于0题队固定顺序
 }
 
 
