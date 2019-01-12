@@ -575,10 +575,14 @@ function getSubmitList() {
 				}
 				var st=4;
 				while (ss!=ss.replace('.','_')) ss=ss.replace('.','_');
-				if (sub.verdict=="OK") st=0;
-				if (sub.verdict=="COMPILATION_ERROR") st=7;
-				if (sub.verdict=="TESTING") st=-1;
-				if (sub.verdict=="SKIPPED") continue;
+				if (!("verdict" in sub))
+					st=-1;
+				else{	
+					if (sub.verdict=="OK") st=0;
+					if (sub.verdict=="COMPILATION_ERROR") st=7;
+					if (sub.verdict=="TESTING") st=-1;
+					if (sub.verdict=="SKIPPED") continue;
+				}
 				data.push(new Submit(sub.id, ss, sub.problem.index, sub.creationTimeSeconds*1000+999, st));
             }
 
