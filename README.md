@@ -1,6 +1,7 @@
 # ScrollBoard.js
 
 （我的）展示页面：[Demo](https://xzm2000.github.io/ScrollBoard.js/)
+
 ###20190112 bug fix：
 
 - 对于0题选手固定排位顺序，防止跳来跳去
